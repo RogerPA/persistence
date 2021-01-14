@@ -15,7 +15,8 @@ class PartialNode {
   PartialNode() {}
 
   PartialNode(data_type const& data, std::size_t const& out_ptrs_size,
-              std::size_t const& in_ptrs_size) {
+              std::size_t const& in_ptrs_size) : data_(new data_type(data)), out_ptrs_size_(out_ptrs_size),
+                                                 in_ptrs_size_(in_ptrs_size){
     backward_ = new PartialNode<Type>*[in_ptrs_size]();
   }
 
@@ -31,7 +32,7 @@ class PartialNode {
   bool update_edge(std::size_t const& position, PartialNode* v) { return true; }
 
   PartialNode& operator[](
-      std::pair<std::size_t, unsigned int> const& version) const {
+      std::pair<std::size_t, unsigned int> const& position_version) const {
     return;
   }
 
