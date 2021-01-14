@@ -108,29 +108,6 @@ class DirectedGraph {
   Node get_root() { return *root_ptr_; }
 
   /**
-   *
-   *  \brief Inserts element
-   *  Inserts elements at the specified node in the container at location id and
-   * returns the vertex pointer for the new vertex.
-   *
-   */
-  Node* insert_vertex(data_type const& data, Node* u,
-                      std::size_t const& position) {
-    if (u->out_ptrs_size_ != out_ptrs_size_) {
-      throw std::logic_error("Node with different number of out pointers.");
-    }
-    if (out_ptrs_size_ < position) {
-      throw std::out_of_range("Insert position out of node edges range.");
-    }
-    Node* next_node_ptr = u->forward_[position];
-    Node* new_node = new Node(data, out_ptrs_size_);
-    new_node->forward_[position] = next_node_ptr;
-    u->forward_[position] = new_node;
-    // return dynamic_cast<Node*>(u->forward_[position]);
-    return u->forward_[position];
-  }
-
-  /**
    *  \brief Attachs two nodes
    *
    *  Adds edge from u to v and throws and exception of type std::out_of_range

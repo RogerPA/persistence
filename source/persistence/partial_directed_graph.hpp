@@ -31,7 +31,7 @@ class PartialNode {
   bool update_edge(std::size_t const& position, PartialNode* v) { return true; }
 
   PartialNode& operator[](
-      std::pair<std::size_t, unsigned int> const& version) const {
+      std::pair<std::size_t, unsigned int> const& position_version) const {
     return;
   }
 
@@ -44,6 +44,7 @@ class PartialNode {
   std::size_t current_back_pointer_size_;
 
   PartialNode** backward_;
+  // TODO: Table mods, 2 * in_ptrs_size_
 };
 
 template <typename Type, typename Node>
@@ -57,11 +58,6 @@ class PartialDirectedGraph {
   Node* get_root_ptr(unsigned int const& version) { return nullptr; }
 
   Node get_root(unsigned int const& version) { return; }
-
-  Node* insert_vertex(data_type const data, Node* u, std::size_t position) {
-    ++(*current_version_);
-    return nullptr;
-  }
 
   bool add_edge(Node* u, Node* v, std::size_t position) {
     ++(*current_version_);
