@@ -106,7 +106,7 @@ class PartialNode {
   PartialNode** forward_;
 
   std::size_t in_ptrs_size_;
-  std::size_t current_modifications_size_;
+  //std::size_t current_modifications_size_;
   std::size_t current_back_pointer_size_;
 
   PartialNode** backward_;
