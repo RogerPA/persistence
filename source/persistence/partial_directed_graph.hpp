@@ -29,16 +29,21 @@ class PartialNode {
     return search_version(version).data_;
   }
 
-  bool set_data(data_type const& data) {
-    PartialNode* old_version = new PartialNode<Type>(data, out_ptrs_size_, in_ptrs_size_, last_graph_version);
+  void make_old_version() {
+    PartialNode* old_version = new PartialNode<Type>(*data_, out_ptrs_size_, in_ptrs_size_, last_graph_version);
     old_version->corresponding_version = last_graph_version;//close this node as a old version node
     ++(*last_graph_version);
-    for (size_t i(0); i < in_ptrs_size_; ++i)
+    for (std::size_t i(0); i < in_ptrs_size_; ++i)
       old_version->backward_[i] = backward_[i];
-    for (size_t i(0); i < out_ptrs_size_; ++i)
+    for (std::size_t i(0); i < out_ptrs_size_; ++i)
       old_version->forward_[i] = forward_[i];
     old_version->prev_version = prev_version;
     prev_version = old_version;
+  }
+
+  bool set_data(data_type const& data) {
+    make_old_version();
+    *data_ = data;
     return true;
   }
 
@@ -49,6 +54,7 @@ class PartialNode {
     PartialNode* next_node_ptr = forward_[position];
     if (next_node_ptr->in_ptrs_size_ < next_node_ptr->current_back_pointer_size_)
       throw std::out_of_range("Position out of second argument node.");
+    make_old_version();
     PartialNode* new_node = new PartialNode(data, out_ptrs_size_, in_ptrs_size_, last_graph_version);
     new_node->forward_[position] = next_node_ptr;
     next_node_ptr->backward_[next_node_ptr->current_back_pointer_size_] = new_node;
@@ -60,9 +66,10 @@ class PartialNode {
   bool update_edge(std::size_t const& position, PartialNode* v) {
     if (out_ptrs_size_ < position)
       throw std::out_of_range("Position out of first argument node.");
-    forward_[position] = v;
     if(v->in_ptrs_size_ < v->current_back_pointer_size_)
       throw std::out_of_range("Position out of second argument node.");
+    make_old_version();
+    forward_[position] = v;
     v->backward_[v->current_back_pointer_size_++] = this;
     return true;
   }
@@ -113,7 +120,9 @@ class PartialDirectedGraph {
   typedef Type data_type;
 
   PartialDirectedGraph(data_type const data, std::size_t const& out_ptrs_size,
-                       std::size_t const& in_ptrs_size) {}
+                       std::size_t const& in_ptrs_size) 
+                       : current_version_(new unsigned int(1)), in_ptrs_size_(in_ptrs_size), out_ptrs_size_(out_ptrs_size),
+                         root_ptr_(new Node<Type>(data, out_ptrs_size, in_ptrs_size, current_version_)){}
 
   Node* get_root_ptr(unsigned int const& version) {
     assert(version <= *current_version_);
@@ -126,14 +135,11 @@ class PartialDirectedGraph {
   }
 
   Node* insert_vertex(data_type const data, Node* u, std::size_t position) {
-    ++(*current_version_);
-    return nullptr;
+    return u->insert_vertex(position, data);
   }
 
   bool add_edge(Node* u, Node* v, std::size_t position) {
-    ++(*current_version_);
-    u->update_edge(position, v);
-    return true;
+    return u->update_edge(position, v);
   }
 
  protected:
