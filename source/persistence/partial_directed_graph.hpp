@@ -26,7 +26,7 @@ class PartialNode {
   }
 
   data_type get_data(unsigned int version) {
-    return search_version(version).data_;
+    return *(search_version(version)->data_);
   }
 
   void make_old_version() {
@@ -42,8 +42,10 @@ class PartialNode {
   }
 
   bool set_data(data_type const& data) {
+    if (data == *data_)
+      return false;
     make_old_version();
-    *data_ = data;
+    data_(new data_type(data));
     return true;
   }
 
